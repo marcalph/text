@@ -8,15 +8,15 @@
 embeddings
 """
 
-import spacy
-import tqdm
 import logging
-import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
+import random
+import seaborn as sns
+import spacy
+
+from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-
-
 from utils import load
 
 logger = logging.getLogger(__name__)
@@ -30,8 +30,6 @@ logger.addHandler(ch)
 
 # apply spacy  nlp pipeline
 nlp = spacy.load("fr_core_news_md")
-text_sample = load()[0]
-doc = nlp(text_sample)
 
 
 def most_similar(word):
@@ -39,8 +37,7 @@ def most_similar(word):
     logger.info("querying done")
     by_similarity = sorted(queries, key=lambda w: word.similarity(w), reverse=True)
     logger.info("sorting done")
-    return by_similarity[:200]
-
+    return by_similarity[:100]
 
 
 def plot_embeddings(target_word):
@@ -50,18 +47,17 @@ def plot_embeddings(target_word):
     embeddings = [v.vector for v in similar_words]
 
     # tsne reduction
-    mapped_embeddings = TSNE(n_components=2, perplexity=10).fit_transform(embeddings)
+    mapped_embeddings = TSNE(n_components=2).fit_transform(embeddings)
     logger.debug("projection done")
-    df = pd.DataFrame({"x": me[:, 0], "y": me[:, 1], "label": w})
+    df = pd.DataFrame({"x": mapped_embeddings[:, 0], "y": mapped_embeddings[:, 1], "label": words})
     p1 = sns.regplot(data=df, x="x", y="y", fit_reg=False, marker="+", color="skyblue")
-    for _, point in df.iterrows():
-        p1.text(point['x'], point['y'], str(point['label']))
-
+    for i, point in df.iterrows():
+        p1.text(point['x'], point['y'], str(point['label']),  alpha=round(random.random()/5,2))
     plt.show()
     return words, mapped_embeddings
 
-w, me = plot_embeddings("avocat")
 
+def ppritn
 
 
 
