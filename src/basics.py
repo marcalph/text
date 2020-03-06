@@ -14,10 +14,12 @@ import pandas as pd
 import random
 import seaborn as sns
 import spacy
+import tabulate
 
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from utils import load
+from src.utils import load
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -40,8 +42,7 @@ def most_similar(word):
     return by_similarity[:100]
 
 
-def plot_embeddings(target_word):
-    similar_words = most_similar(nlp.vocab[target_word])
+def plot_embeddings(similar_words):
     logger.debug("similar word querying done")
     words = [w.orth_ for w in similar_words]
     embeddings = [v.vector for v in similar_words]
@@ -57,13 +58,18 @@ def plot_embeddings(target_word):
     return words, mapped_embeddings
 
 
-def ppritn
+
+
+sims = most_similar(nlp.vocab["France"])
+
+
+plot_embeddings(sims)
+
+[t.text for t in sims]
 
 
 
-# if __name__ == "__main__":
-#     print(most_similar(nlp.vocab["chien"]))
-#     logger.info(nlp.vocab["toujours"].cluster)
-
+sample = ("Aaron Swartz, né le 8 novembre 1986 à Chicago et mort le 11 janvier 2013 à New York, est un informaticien, écrivain, militant politique et hacktiviste américain."
+          "Fervent partisan de la liberté numérique, il consacra sa vie à la défense de la « culture libre », convaincu que l'accès à la connaissance est un moyen d'émancipation et de justice.")
 
 
