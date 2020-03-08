@@ -18,10 +18,13 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s %(message)
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-def load(path="data/t4.csv"):
-    text_df = pd.read_csv(path).text.sample(5000)
+def load(path="data/t4.csv", size=5000):
+    text_df = pd.read_csv(path).text.sample(size)
     return text_df.values.tolist()
 
+
+def subset(sample, keyword):
+    return [text for text in sample if keyword.lower in text.lower()]
 
 
 if __name__ == "__main__":
