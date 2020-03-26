@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # coding: utf-8
-################################################
-# authors                                      #
-# marcalph	<marcalph@protonmail.com>			#
-################################################
+########################################
+# authors                              #
+# marcalph https://github.com/marcalph #
+########################################
 """
 embeddings
 """
 
+
+#todo clean this script and add glove embeddings
 import logging
 import matplotlib.pyplot as plt
 import pandas as pd

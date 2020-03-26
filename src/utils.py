@@ -1,27 +1,30 @@
 #!/usr/bin/env python3
 # coding: utf-8
-################################################
-# authors                                      #
-# marcalph	<marcalph@protonmail.com>			#
-################################################
+########################################
+# authors                              #
+# marcalph https://github.com/marcalph #
+########################################
 """
-text loading utils
+text utils
 """
-
 import logging
+from typing import Dict
 import pandas as pd
+import numpy as np
+from annoy import AnnoyIndex
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s\n%(message)s", "%Y-%m-%d %H:%M")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+
+# data utils
 def load_data(path="data/t4.csv", size=5000):
     text_df = pd.read_csv(path).text.sample(size)
     return text_df.values.tolist()
-
 
 
 def load_ner_data(path="data/entity-annotated-corpus/ner_dataset.csv", *args, **kwargs):
@@ -31,10 +34,54 @@ def load_ner_data(path="data/entity-annotated-corpus/ner_dataset.csv", *args, **
     return df
 
 
+# pretrained embeddings utils
+def load_glove(glove_file: str):# -> Dict[str, np.ndarray]:
+    """ load glove pretrained embeddings
+        returns embedding as dict
+    """
+    glove = {}
+    with open(glove_file, 'r', encoding="utf-8") as f:
+        for line in f:
+            splitted = line.split()
+            word = splitted[0]
+            embedding = np.array([float(val) for val in splitted[1:]])
+            glove[word] = embedding
+    return glove
+
+
+def index_glove_embeddings(dict_embedding):
+    """ index embeddings using annoy (spotify)
+        returns:
+            embedding_index an AnnoyIndex instance
+            word_mapping dict of int to word in vocab
+    """
+    word_mapping = {i: word for i, word in enumerate(dict_embedding)}
+    word_features = [dict_embedding[w] for _, w in word_mapping.items()]
+    logger.info("Building tree")
+    embedding_index = AnnoyIndex(50, metric="angular")
+    for i, vec in enumerate(word_features):
+        embedding_index.add_item(i, vec)
+    embedding_index.build(20)
+    logger.info("Tree built")
+    return embedding_index, word_mapping
+
+
+def search_index(value, index, mapping, top_n=10):
+    distances = index.get_nns_by_vector(value, top_n, include_distances=True)
+    logger.debug(distances)
+    resdict = {mapping[a] : 1/(distances[1][i]+0.1) for i, a in enumerate(distances[0])}
+    logger.debug(resdict)
+    return resdict
+
 if __name__ == "__main__":
-    logger.info("load data")
-    df = load_ner_data()
-    logger.info(df.head(30))
+    def main():
+        glove = load_glove("data/embeddings/glove.6B/glove.6B.50d.txt")
+        index, mapping = index_glove_embeddings(glove)
+        return glove, index, mapping
+    glove, emb_idx, word_idx = main()
+
+    print(search_index(glove['cat'], emb_idx, word_idx, 5))
+
 
 
 

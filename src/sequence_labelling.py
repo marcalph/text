@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # coding: utf-8
-################################################
-# authors                                      #
-# marc alphonsus <malphonsus.externe@macif.fr> #
-################################################
+########################################
+# authors                              #
+# marcalph https://github.com/marcalph #
+########################################
 """ sequence labelling through a simple pytorch ner model
 """
 
