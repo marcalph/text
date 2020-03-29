@@ -57,11 +57,12 @@ def index_glove_embeddings(dict_embedding):
     """
     word_mapping = {i: word for i, word in enumerate(dict_embedding)}
     word_features = [dict_embedding[w] for _, w in word_mapping.items()]
+    dim = next(iter(dict_embedding.values())).size
     logger.info("Building tree")
-    embedding_index = AnnoyIndex(50, metric="angular")
+    embedding_index = AnnoyIndex(dim, metric="angular")
     for i, vec in enumerate(word_features):
         embedding_index.add_item(i, vec)
-    embedding_index.build(20)
+    embedding_index.build(dim//3)
     logger.info("Tree built")
     return embedding_index, word_mapping
 
@@ -74,14 +75,5 @@ def search_index(value, index, mapping, top_n=10):
     return resdict
 
 if __name__ == "__main__":
-    def main():
-        glove = load_glove("data/embeddings/glove.6B/glove.6B.50d.txt")
-        index, mapping = index_glove_embeddings(glove)
-        return glove, index, mapping
-    glove, emb_idx, word_idx = main()
-
-    print(search_index(glove['cat'], emb_idx, word_idx, 5))
-
-
-
+    pass
 
