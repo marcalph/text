@@ -14,7 +14,6 @@ import annoy
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.express as px
 import plotly.graph_objs as go
 import streamlit as st
 from sklearn.manifold import TSNE

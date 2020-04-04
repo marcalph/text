@@ -91,9 +91,11 @@ def base_sim(text_left, text_right, embedding, wosw=False, tfidf=False):
 
 
 def infersent_sim(text_left, text_right):
+    """ compute similarity through infersent embeddings
+    """
     infersent  = load_infersent()
-    raw_sentences1 = [sent1.raw for sent1 in text_left]
-    raw_sentences2 = [sent2.raw for sent2 in text_right]
+    raw_sentences1 = [sent.raw for sent in text_left]
+    raw_sentences2 = [sent.raw for sent in text_right]
 
     infersent.build_vocab(raw_sentences1 + raw_sentences2, tokenize=True)
     embeddings1 = infersent.encode(raw_sentences1, tokenize=True)
@@ -107,33 +109,36 @@ def infersent_sim(text_left, text_right):
     return infersent_sims
 
 
-# def google_use_sim(sentences1, sentences2):
-#     sts_input1 = tf.placeholder(tf.string, shape=(None))
-#     sts_input2 = tf.placeholder(tf.string, shape=(None))
+def google_use_sim(text_left, text_right):
+    """ compute similarity through google use embeddings
+    """
+    guse = load_google_use()
+    raw_sentences1 = [sent.raw for sent in text_left]
+    raw_sentences2 = [sent.raw for sent in text_right]
 
-#     sts_encode1 = tf.nn.l2_normalize(embed(sts_input1))
-#     sts_encode2 = tf.nn.l2_normalize(embed(sts_input2))
-        
-#     sim_scores = tf.reduce_sum(tf.multiply(sts_encode1, sts_encode2), axis=1)
-    
-#     with tf.Session() as session:
-#         session.run(tf.global_variables_initializer())
-#         session.run(tf.tables_initializer())
-      
-#         [gse_sims] = session.run(
-#             [sim_scores],
-#             feed_dict={
-#                 sts_input1: [sent1.raw for sent1 in sentences1],
-#                 sts_input2: [sent2.raw for sent2 in sentences2]
-#             })
-#     return gse_sims
+    embeddings1 = guse(raw_sentences1)
+    embeddings2 = guse(raw_sentences2)
+
+    guse_sims = []
+    for (emb1, emb2) in zip(embeddings1, embeddings2):
+        sim = cosine_similarity(tf.reshape(emb1, (1, -1)), tf.reshape(emb2, (1, -1)))[0][0]
+        guse_sims.append(sim)
+
+    return guse_sims
+
+
+
+
+
+
 
 bench = [
     ("AVG-GLOVE", ft.partial(base_sim, embedding=glove, wosw=False)),
     ("AVG-GLOVE-WOSW", ft.partial(base_sim, embedding=glove, wosw=True)),
     ("AVG-GLOVE-TFIDF", ft.partial(base_sim, embedding=glove, wosw=False, tfidf=True)),
     ("AVG-GLOVE-TFIDF-WOSW", ft.partial(base_sim, embedding=glove, wosw=True, tfidf=True)),
-    ("INF", infersent_sim)
+    ("INF", infersent_sim),
+    ("INF", google_use_sim)
 ]
 
 
