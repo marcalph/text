@@ -7,26 +7,27 @@
 """ sequence labelling through a simple pytorch ner model
 """
 
-from typing import Dict
-import pandas as pd
-from tqdm import tqdm
-from torchtext.data import Example, Field, Dataset, BucketIterator
-import torch.optim as optim
-from tqdm import tqdm_notebook as tqdm
-from sklearn.metrics import precision_recall_fscore_support, classification_report
-
-import torch
-import torch.nn as nn
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import math
-
+from typing import Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from sklearn.metrics import (classification_report,
+                             precision_recall_fscore_support)
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
+from torchtext.data import BucketIterator, Dataset, Example, Field
+from tqdm import tqdm
+from tqdm import tqdm_notebook as tqdm
+
 from utils import load_ner_data
 
-
-#todo improve loading
+# todo start
+# improve loading
+# merge spacy ner sequence labelling script with sequence labelling
+# todo end
 
 text_field = Field(sequential=True, tokenize=lambda x:x, include_lengths=True) # default tokenize is str.split
 tag_field = Field(sequential=True, tokenize=lambda x:x, is_target=True)

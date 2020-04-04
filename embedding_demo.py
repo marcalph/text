@@ -4,42 +4,38 @@
 # authors                              #
 # marcalph https://github.com/marcalph #
 ########################################
-""" simple embedding demo
+""" simple embedding demo 
     useful to
     > show what an embedding is
     > give intuition about encoded info
+    also provides a tensorflow projector like viz
 """
-import logging
-import time
-
 import annoy
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import seaborn as sns
+import plotly.express as px
+import plotly.graph_objs as go
 import streamlit as st
 from sklearn.manifold import TSNE
 from wordcloud import WordCloud
-
-import   plotly.express as px
 
 from src.utils import index_glove_embeddings, load_glove, search_index
 
 matplotlib.use('Agg')
 
 
-#todo update visualisation enhance caching
+#todo update visualisation and fix caching
 
 # code
 @st.cache(allow_output_mutation=True)
 def load_and_index():
-    glove = load_glove("data/embeddings/glove.6B/glove.6B.100d.txt")
+    glove = load_glove("data/embeddings/glove.6B/glove.6B.50d.txt")
     index, mapping = index_glove_embeddings(glove)
     return glove, index, mapping
 
 
-@st.cache(hash_funcs={annoy.AnnoyIndex: lambda _:None}, allow_output_mutation=True)
+@st.cache(hash_funcs={annoy.AnnoyIndex: lambda _:None})
 def find_most_similar(word, top_n=30):
     return search_index(glove[word], index, mapping, top_n)
 
@@ -89,11 +85,10 @@ st.markdown("## visualisation")
 query = st.text_input("projection query", "france")
 
 
-import plotly.graph_objs as go
 
-@st.cache(hash_funcs={annoy.AnnoyIndex: lambda _:None}, allow_output_mutation=True)
-def compute_viz(query):
-    selected_words = list(find_most_similar(query, 100).keys())
+@st.cache(hash_funcs={annoy.AnnoyIndex: lambda _:None})
+def compute_viz(word_query):
+    selected_words = list(find_most_similar(word_query, 100).keys())
     selected_embeddings = np.vstack([glove[w] for w in selected_words])
     mapped_embeddings = TSNE(n_components=3, metric='cosine', init='pca').fit_transform(selected_embeddings)
     x = mapped_embeddings[:,0]
