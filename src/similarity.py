@@ -39,7 +39,7 @@ sts_dev = load_sts_data("data/stsbenchmark/sts-dev.csv")
 class Text(object):
     def __init__(self, text):
         self.raw = text
-        self.tokens = [t.lower() for t in nltk.word_tokenize(self.raw)]
+        self.tokens = [t for t in nltk.word_tokenize(self.raw)]
         self.tokens_wosw = [t for t in self.tokens if t not in STOP_WORDS]
 
 
@@ -47,21 +47,23 @@ class Text(object):
 
 
 
-def base_sim(text_left, text_right, embedding, wosw=False, tfidf=False):
+def base_sim(text_left, text_right, embedding, lower=False, wosw=False, tfidf=False):
     """ compute sentence similairty through embeddings either w/wo:
         stopwords
         tf-idf frequencies
     """
     if tfidf:
-        tfidf_vectorizer = TfidfVectorizer(tokenizer=nltk.word_tokenize, lowercase=True)
+        tfidf_vectorizer = TfidfVectorizer(tokenizer=nltk.word_tokenize, lowercase=lower)
         tfidf_vectorizer = tfidf_vectorizer.fit([t.raw for t in text_left] + [t.raw for t in text_right])
         freq_dict = dict(zip(tfidf_vectorizer.get_feature_names(), tfidf_vectorizer.idf_))
-        # print(freq_dict.keys())
 
     sims = []
     for (textl, textr) in zip(text_left, text_right):
         tokensl = textl.tokens_wosw if wosw else textl.tokens
         tokensr = textr.tokens_wosw if wosw else textr.tokens
+        if lower:
+            tokensl = [t.lower() for t in tokensl]
+            tokensr = [t.lower() for t in tokensr]
         # remove token oov for embedding
         tokensl = [token for token in tokensl if token in embedding]
         tokensr = [token for token in tokensr if token in embedding]
@@ -130,15 +132,17 @@ def google_use_sim(text_left, text_right):
 
 
 
-
-
 bench = [
-    ("AVG-GLOVE", ft.partial(base_sim, embedding=glove, wosw=False)),
-    ("AVG-GLOVE-WOSW", ft.partial(base_sim, embedding=glove, wosw=True)),
+    ("AVG-GLOVE", ft.partial(base_sim, embedding=glove, wosw=False, lower=False)),
+    ("AVG-GLOVE-LOW", ft.partial(base_sim, embedding=glove, wosw=False, lower=True)),
+    ("AVG-GLOVE-WOSW", ft.partial(base_sim, embedding=glove, wosw=True, lower=False)),
+    ("AVG-GLOVE-WOSW-LOW", ft.partial(base_sim, embedding=glove, wosw=True, lower=True)),
     ("AVG-GLOVE-TFIDF", ft.partial(base_sim, embedding=glove, wosw=False, tfidf=True)),
+    ("AVG-GLOVE-TFIDF-LOW", ft.partial(base_sim, embedding=glove, wosw=False, lower=True, tfidf=True)),
     ("AVG-GLOVE-TFIDF-WOSW", ft.partial(base_sim, embedding=glove, wosw=True, tfidf=True)),
-    ("INF", infersent_sim),
-    ("INF", google_use_sim)
+    ("AVG-GLOVE-TFIDF-WOSW-LOW", ft.partial(base_sim, embedding=glove, wosw=True, tfidf=True, lower=True)),
+    ("INFERSENT", infersent_sim),
+    ("USE", google_use_sim)
 ]
 
 
