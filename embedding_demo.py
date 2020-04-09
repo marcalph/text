@@ -4,7 +4,7 @@
 # authors                              #
 # marcalph https://github.com/marcalph #
 ########################################
-""" simple embedding demo 
+""" simple embedding demo
     useful to
     > show what an embedding is
     > give intuition about encoded info
@@ -19,17 +19,18 @@ import streamlit as st
 from sklearn.manifold import TSNE
 from wordcloud import WordCloud
 
-from src.utils import index_glove_embeddings, load_glove, search_index
+from src.utils import index_glove_embeddings, load_glove
 
 matplotlib.use('Agg')
 
 
 #todo update visualisation and fix caching
+#todo add prune dict option to glove load func
 
 # code
 @st.cache(allow_output_mutation=True)
 def load_and_index():
-    glove = load_glove("data/embeddings/glove.6B/glove.6B.50d.txt")
+    glove = load_glove("data/embeddings/glove.840B/glove.840B.300d.txt")
     index, mapping = index_glove_embeddings(glove)
     return glove, index, mapping
 
@@ -37,6 +38,15 @@ def load_and_index():
 @st.cache(hash_funcs={annoy.AnnoyIndex: lambda _:None})
 def find_most_similar(word, top_n=30):
     return search_index(glove[word], index, mapping, top_n)
+
+
+
+def search_index(value, index, mapping, top_n=10):
+    distances = index.get_nns_by_vector(value, top_n, include_distances=True)
+    logger.debug(distances)
+    resdict = {mapping[a] : 1/(distances[1][i]+0.1) for i, a in enumerate(distances[0])}
+    logger.debug(resdict)
+    return resdict
 
 
 # demo

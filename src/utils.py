@@ -15,10 +15,9 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import tensorflow_hub as tfhub
 import torch
 import wget
-import tensorflow as tf
-import tensorflow_hub as tfhub
 from annoy import AnnoyIndex
 
 from encoders import InferSent
@@ -75,6 +74,12 @@ def get_sts_data():
 
 
 
+def get_top_20k():
+    """ downoad top 20k common words in english through wget
+    """
+    url = "https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt"
+    wget.download(url, out="data/freqs")
+    return None
 
 
 ######################################
@@ -111,8 +116,9 @@ def load_google_use():
 ######################################
 # pretrained embeddings utils
 ######################################
-def load_glove(glove_file: str="data/embeddings/glove.6B/glove.6B.50d.txt") -> Dict[str, np.ndarray]:
+def load_glove(glove_file: str="data/embeddings/glove.840B/glove.840B.300d.txt", prune: bool=False) -> Dict[str, np.ndarray]:
     """ load glove pretrained embeddings
+        prune 
         returns embedding as dict
     """
     glove = {}
@@ -122,6 +128,13 @@ def load_glove(glove_file: str="data/embeddings/glove.6B/glove.6B.50d.txt") -> D
             word = splitted[0]
             embedding = np.array([float(val) for val in splitted[1:]])
             glove[word] = embedding
+
+    if prune:
+        top20k = pd.read_csv("data/freqs/20k.txt", header=None)[0].values.tolist()
+        to_prune = set(glove.keys())- set(top20k)
+        for k in to_prune:
+            glove.pop(k)
+
     return glove
 
 
@@ -143,14 +156,7 @@ def index_glove_embeddings(dict_embedding):
     return embedding_index, word_mapping
 
 
-def search_index(value, index, mapping, top_n=10):
-    distances = index.get_nns_by_vector(value, top_n, include_distances=True)
-    logger.debug(distances)
-    resdict = {mapping[a] : 1/(distances[1][i]+0.1) for i, a in enumerate(distances[0])}
-    logger.debug(resdict)
-    return resdict
-
-
 
 if __name__ == "__main__":
-    pass
+    glove = load_glove(prune=True)
+    print(len(glove.keys()))

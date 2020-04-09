@@ -8,8 +8,10 @@
 import functools as ft
 from collections import Counter
 
+import matplotlib.pyplot as plt
 import nltk
 import numpy as np
+import pandas as pd
 import scipy
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -18,7 +20,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from spacy.lang.en.stop_words import STOP_WORDS
 
-from utils import load_glove, load_sts_data, load_infersent, load_google_use
+from utils import load_glove, load_google_use, load_infersent, load_sts_data
 
 glove = load_glove("data/embeddings/glove.840B/glove.840B.300d.txt")
 sts_train = load_sts_data()
@@ -168,3 +170,16 @@ pearson_results, spearman_results = {}, {}
 pearson_results["STS-TRAIN"], spearman_results["STS-TRAIN"] = run_comparisons(sts_train, bench)
 pearson_results["STS-DEV"], spearman_results["STS-DEV"] = run_comparisons(sts_dev, bench)
 
+
+
+
+pearson_results_df = pd.DataFrame(pearson_results)
+pearson_results_df = pearson_results_df.transpose()
+pearson_results_df = pearson_results_df.rename(columns={i:b[0] for i, b in enumerate(bench)})
+pearson_results_df[[b[0] for b in bench if b[0].startswith("AVG")]].plot(kind="bar").legend(loc="lower left")
+
+
+
+
+
+plt.show()
