@@ -29,22 +29,11 @@ sts_dev = load_sts_data("data/stsbenchmark/sts-dev.csv")
 
 
 
-
-
-
-# import logging
-# logger = tf.get_logger()
-# logger.setLevel(logging.ERROR)
-# embed = hub.Module("https://tfhub.dev/google/universal-sentence-encoder/4")
-
-
 class Text(object):
     def __init__(self, text):
         self.raw = text
         self.tokens = [t for t in nltk.word_tokenize(self.raw)]
         self.tokens_wosw = [t for t in self.tokens if t not in STOP_WORDS]
-
-
 
 
 
@@ -166,20 +155,14 @@ def run_comparisons(df, benchmarks):
 
 
 
-pearson_results, spearman_results = {}, {}
-pearson_results["STS-TRAIN"], spearman_results["STS-TRAIN"] = run_comparisons(sts_train, bench)
-pearson_results["STS-DEV"], spearman_results["STS-DEV"] = run_comparisons(sts_dev, bench)
 
 
-
-
-pearson_results_df = pd.DataFrame(pearson_results)
-pearson_results_df = pearson_results_df.transpose()
-pearson_results_df = pearson_results_df.rename(columns={i:b[0] for i, b in enumerate(bench)})
-pearson_results_df[[b[0] for b in bench if b[0].startswith("AVG")]].plot(kind="bar").legend(loc="lower left")
-
-
-
-
-
-plt.show()
+if __name__ == "__main__":
+    pearson_results, spearman_results = {}, {}
+    pearson_results["STS-TRAIN"], spearman_results["STS-TRAIN"] = run_comparisons(sts_train, bench)
+    pearson_results["STS-DEV"], spearman_results["STS-DEV"] = run_comparisons(sts_dev, bench)
+    pearson_results_df = pd.DataFrame(pearson_results)
+    pearson_results_df = pearson_results_df.transpose()
+    pearson_results_df = pearson_results_df.rename(columns={i:b[0] for i, b in enumerate(bench)})
+    pearson_results_df[[b[0] for b in bench if b[0].startswith("AVG")]].plot(kind="bar").legend(loc="lower left")
+    plt.show()

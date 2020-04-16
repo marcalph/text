@@ -20,7 +20,7 @@ import torch
 import wget
 from annoy import AnnoyIndex
 
-from encoders import InferSent
+from src.encoders import InferSent
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
@@ -28,9 +28,6 @@ ch = logging.StreamHandler()
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s\n%(message)s", "%Y-%m-%d %H:%M")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
-
-
-#todo remove search index from utils
 
 
 
@@ -118,7 +115,7 @@ def load_google_use():
 ######################################
 def load_glove(glove_file: str="data/embeddings/glove.840B/glove.840B.300d.txt", prune: bool=False) -> Dict[str, np.ndarray]:
     """ load glove pretrained embeddings
-        prune 
+        prune : keep top 20k lowercase word from glove vocab
         returns embedding as dict
     """
     glove = {}
