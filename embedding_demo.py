@@ -85,11 +85,13 @@ def compute_viz(word_query):
 # demo
 st.write("# embeddings")
 
+parts = ["basics", "operations", "visualisation"]
+
 part = st.sidebar.selectbox(
     'Which part do you wish to display ?',
-    range(3))
+    parts)
 
-if part == 0:
+if part == parts[0]:
     st.write("## basics")
     # show example of embedding
     if st.checkbox("show embedding vector"):
@@ -109,7 +111,7 @@ if part == 0:
     plt.axis("off")
     st.pyplot()
 
-elif part == 1:
+elif part == parts[1]:
     # basic operations
     st.markdown("## operations")
     pos_words = st.text_input("positive words", "king, woman").translate(str.maketrans('', '', string.punctuation)).split()
@@ -127,7 +129,7 @@ elif part == 1:
         ops_dict.pop(w, None)
     st.write(ops_dict.keys())
 
-elif part == 2:
+elif part == parts[2]:
     # visualisation
     st.markdown("## visualisation")
     query = st.text_input("projection query", "france")
