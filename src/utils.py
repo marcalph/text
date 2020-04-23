@@ -135,22 +135,22 @@ def load_glove(glove_file: str="data/embeddings/glove.840B/glove.840B.300d.txt",
     return glove
 
 
-def index_glove_embeddings(dict_embedding):
+def index_embeddings(dict_embedding):
     """ index embeddings using annoy (spotify)
         returns:
-            embedding_index an AnnoyIndex instance
+            feature_index an AnnoyIndex instance
             word_mapping dict of int to word in vocab
     """
-    word_mapping = {i: word for i, word in enumerate(dict_embedding)}
-    word_features = [dict_embedding[w] for _, w in word_mapping.items()]
+    text_map = {i: text for i, text in enumerate(dict_embedding)}
+    text_features = [np.array(dict_embedding[w]) for _, w in text_map.items()]
     dim = next(iter(dict_embedding.values())).size
     logger.info("Building tree")
-    embedding_index = AnnoyIndex(dim, metric="angular")
-    for i, vec in enumerate(word_features):
-        embedding_index.add_item(i, vec)
-    embedding_index.build(25)
+    feature_index = AnnoyIndex(dim, metric="angular")
+    for i, vec in enumerate(text_features):
+        feature_index.add_item(i, vec)
+    feature_index.build(25)
     logger.info("Tree built")
-    return embedding_index, word_mapping
+    return feature_index, text_map
 
 
 
