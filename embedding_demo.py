@@ -25,6 +25,9 @@ matplotlib.use('Agg')
 
 
 # todo update visualisation and fix caching
+# todo compare annoy vs faiss
+# todo make use of wordfreq
+
 
 # code
 @st.cache(allow_output_mutation=True)

@@ -7,7 +7,6 @@
 """
 text utils
 """
-import csv
 import logging
 import tarfile
 from typing import Dict
@@ -22,13 +21,12 @@ from annoy import AnnoyIndex
 
 from src.encoders import InferSent
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s\n%(message)s", "%Y-%m-%d %H:%M")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
-
 
 
 ################################
@@ -68,7 +66,6 @@ def get_sts_data():
     archive = tarfile.open(sts_dataset)
     archive.extractall("data/")
     return None
-
 
 
 def get_top_20k():
