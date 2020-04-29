@@ -2,7 +2,6 @@ import tabulate
 import spacy
 import tqdm
 import random
-from src.utils import load
 # apply spacy  nlp pipeline
 nlp = spacy.load("fr_core_news_md")
 
@@ -41,7 +40,7 @@ print(f"other pipes {other_pipes}")
 with nlp.disable_pipes(*other_pipes):  # only train NER
     sizes = compounding(1.0, 4.0, 1.001)
     # batch up the examples using spaCy's minibatch
-    for itn in range(30):
+    for itn in range(100):
         random.shuffle(training)
         batches = minibatch(training, size=sizes)
         losses = {}
@@ -55,6 +54,7 @@ print("retest sample\n")
 doc = nlp(sample)
 entities = [(t.text, t.ent_iob_, t.ent_type_) for t in doc]
 print(tabulate.tabulate(entities))
+
 
 print("retest training sample\n")
 doc = nlp(training_sample)
